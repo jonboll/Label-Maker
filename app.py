@@ -51,3 +51,31 @@ def create_label(order_num, item_count, material, design_name):
     return background.convert('RGB')
 
 # --- STREAMLIT UI ---
+st.set_page_config(layout="wide")
+st.title("🏷️ High-Visibility Label Maker")
+
+# Form for inputs
+with st.container():
+    col1, col2 = st.columns(2)
+    with col1:
+        order_id = st.text_input("Order Number", "211720")
+        items = st.text_input("Item Count", "1 of 1")
+    with col2:
+        mat = st.text_input("Material", "Linen Cotton Canvas")
+        design = st.text_input("Design Name", "Sweetgrass Final PNG")
+
+if st.button("Generate Large Label"):
+    img = create_label(order_id, items, mat, design)
+    
+    # Show it at roughly physical size on screen
+    st.image(img, caption="Preview (1 inch tall)", width=800)
+    
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", dpi=(300, 300))
+    
+    st.download_button(
+        label="Download High-Res Label",
+        data=buf.getvalue(),
+        file_name=f"Label_{order_id}.png",
+        mime="image/png"
+    )
