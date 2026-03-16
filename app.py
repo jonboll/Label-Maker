@@ -53,7 +53,7 @@ st.set_page_config(page_title="Custom Label Creator", layout="centered")
 
 # This changes the big title at the top of the webpage
 st.title("🏷️ Custom Label Creator") 
-st.write("Optimized for 600 DPI professional printing.")
+st.write("1" tall label")
 
 order_id = st.text_input("Order Number", "211720")
 items = st.text_input("Item Count", "1 of 1")
