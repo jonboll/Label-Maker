@@ -46,9 +46,13 @@ def create_label(order_num, item_count, material, design_name):
     
     return background.convert('RGB')
 
+
 # --- STREAMLIT UI ---
-st.set_page_config(page_title="Pro Label Maker", layout="centered")
-st.title("💎 High-Resolution Label Maker")
+# This changes the name in the browser tab
+st.set_page_config(page_title="Custom Label Creator", layout="centered")
+
+# This changes the big title at the top of the webpage
+st.title("🏷️ Custom Label Creator") 
 st.write("Optimized for 600 DPI professional printing.")
 
 order_id = st.text_input("Order Number", "211720")
