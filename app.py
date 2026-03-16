@@ -3,67 +3,72 @@ import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import io
 
-def draw_bold_text(draw, position, text, font, fill=0):
-    """Draws text multiple times slightly offset to simulate a heavy bold effect."""
-    x, y = position
-    # Draw the text 3 times with 1-pixel offsets for a 'thick' look
-    for adj in range(3):
-        draw.text((x + adj, y), text, fill=fill, font=font)
-        draw.text((x, y + adj), text, fill=fill, font=font)
-
 def create_label(order_num, item_count, material, design_name):
-    # 300 DPI: 1 inch = 300px height. 4.5 inches = 1350px width.
-    width, height = 1350, 300  
+    # Higher Resolution: 600 DPI
+    # 1 inch = 600px height | 4.5 inches = 2700px width
+    scale_factor = 2 
+    width, height = 1350 * scale_factor, 300 * scale_factor  
     
-    # 1. QR CODE
-    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    # 1. QR CODE (Increased scale for resolution)
+    qr = qrcode.QRCode(version=1, box_size=20, border=4)
     qr.add_data(order_num)
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert('L')
-    qr_side = 280 
-    qr_img = qr_img.resize((qr_side, qr_side), resample=Image.NEAREST)
     
-    # 2. CANVAS
+    # Resize QR to fit the new 600px height
+    qr_side = 560 
+    qr_img = qr_img.resize((qr_side, qr_side), resample=Image.LANCZOS)
+    
+    # 2. CANVAS (Using 'L' for high-contrast grayscale)
     background = Image.new('L', (width, height), color=255)
-    background.paste(qr_img, (10, 10))
+    background.paste(qr_img, (20, 20))
     draw = ImageDraw.Draw(background)
     
-    # 3. FONT SIZING
-    # We use a very large default size. 
-    # Even if the 'path' fails, the default font will now be scaled up.
+    # 3. HIGH-RES FONT SIZING
+    # We use even larger font sizes because the canvas is now 600px tall
     try:
-        # Standard Linux path for a bold font
         font_path = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
-        font_main = ImageFont.truetype(font_path, 70) # Massive Order #
-        font_sub = ImageFont.truetype(font_path, 48)  # Large Details
+        font_main = ImageFont.truetype(font_path, 140) # Double size for high res
+        font_sub = ImageFont.truetype(font_path, 90)
     except:
-        font_main = ImageFont.load_default(size=60)
-        font_sub = ImageFont.load_default(size=40)
+        # If specific font path fails, we use a scaled-up default
+        font_main = ImageFont.load_default(size=120)
+        font_sub = ImageFont.load_default(size=80)
 
-    # 4. DRAW TEXT (Using the Bold trick)
-    text_x = 340
-    
-    # Drawing each line with our 'Bold' helper function
-    draw_bold_text(draw, (text_x, 30), f"ORDER #: {order_num}", font_main)
-    draw_bold_text(draw, (text_x, 110), f"ITEM: {item_count}", font_sub)
-    draw_bold_text(draw, (text_x, 175), f"MAT: {material}", font_sub)
-    draw_bold_text(draw, (text_x, 235), f"DESIGN: {design_name}", font_sub)
+    # 4. DRAW TEXT
+    # At high resolution, we don't need the 'fake bold' trick anymore; 
+    # the font naturally looks clean and heavy.
+    text_x = 700
+    draw.text((text_x, 60), f"ORDER #: {order_num}", fill=0, font=font_main)
+    draw.text((text_x, 210), f"ITEM: {item_count}", fill=0, font=font_sub)
+    draw.text((text_x, 330), f"MAT: {material}", fill=0, font=font_sub)
+    draw.text((text_x, 450), f"DESIGN: {design_name}", fill=0, font=font_sub)
     
     return background.convert('RGB')
 
 # --- STREAMLIT UI ---
-st.set_page_config(page_title="Ultra Bold Label Maker")
-st.title("🏷️ Ultra-Bold 1-Inch Labels")
+st.set_page_config(page_title="Pro Label Maker", layout="centered")
+st.title("💎 High-Resolution Label Maker")
+st.write("Optimized for 600 DPI professional printing.")
 
 order_id = st.text_input("Order Number", "211720")
 items = st.text_input("Item Count", "1 of 1")
 mat = st.text_input("Material", "Linen Cotton Canvas")
 design = st.text_input("Design Name", "Sweetgrass Final PNG")
 
-if st.button("Generate Bold Label"):
+if st.button("Generate High-Res Label"):
     img = create_label(order_id, items, mat, design)
-    st.image(img, caption="Preview: 1 inch tall at 300 DPI", use_container_width=True)
+    
+    # The preview will look large, so we cap the display width
+    st.image(img, caption="High-Resolution Preview", width=800)
     
     buf = io.BytesIO()
-    img.save(buf, format="PNG", dpi=(300, 300))
-    st.download_button("Download High-Res Label", buf.getvalue(), f"Label_{order_id}.png", "image/png")
+    # Saving with 600 DPI metadata so printers know it's 1 inch tall
+    img.save(buf, format="PNG", dpi=(600, 600))
+    
+    st.download_button(
+        label="Download 600 DPI Label",
+        data=buf.getvalue(),
+        file_name=f"Label_HighRes_{order_id}.png",
+        mime="image/png"
+    )
