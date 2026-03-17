@@ -4,31 +4,31 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 
 def create_label(order_num, item_count, material, design_name):
-    # Higher Resolution: 600 DPI
+    # 600 DPI Resolution
     scale_factor = 2 
     width, height = 1350 * scale_factor, 300 * scale_factor  
     
-    # 1. SET THE COLOR
-    # Converting hex #889a89 to RGB tuple
-    sage_green = (136, 154, 137)
+    # --- COLOR DEFINITIONS ---
+    sage_green = (136, 154, 137)  # #889a89 for the QR
+    pure_black = (0, 0, 0)        # For the Text
     
-    # 2. QR CODE 
+    # 1. QR CODE (Sage Green)
     qr = qrcode.QRCode(version=1, box_size=20, border=4)
     qr.add_data(order_num)
     qr.make(fit=True)
     
-    # We use fill_color to apply your Sage Green
+    # Apply green only here
     qr_img = qr.make_image(fill_color=sage_green, back_color="white").convert('RGB')
     
     qr_side = 560 
     qr_img = qr_img.resize((qr_side, qr_side), resample=Image.LANCZOS)
     
-    # 3. CANVAS (Switched to 'RGB' to support color)
+    # 2. CANVAS
     background = Image.new('RGB', (width, height), color=(255, 255, 255))
     background.paste(qr_img, (20, 20))
     draw = ImageDraw.Draw(background)
     
-    # 4. LOAD FONTS
+    # 3. FONTS
     try:
         font_path = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
         font_main = ImageFont.truetype(font_path, 140)
@@ -37,14 +37,13 @@ def create_label(order_num, item_count, material, design_name):
         font_main = ImageFont.load_default(size=120)
         font_sub = ImageFont.load_default(size=80)
 
-    # 5. DRAW TEXT 
+    # 4. DRAW TEXT (Black)
     text_x = 700
-    draw.text((text_x, 60), f"ORDER #: {order_num}", fill=black, font=font_main)
-    draw.text((text_x, 210), f"ITEM: {item_count}", fill=black, font=font_sub)
-    draw.text((text_x, 330), f"MAT: {material}", fill=black, font=font_sub)
-    draw.text((text_x, 450), f"DESIGN: {design_name}", fill=black, font=font_sub)
-
-
+    # We explicitly set fill to pure_black here
+    draw.text((text_x, 60), f"ORDER #: {order_num}", fill=pure_black, font=font_main)
+    draw.text((text_x, 210), f"ITEM: {item_count}", fill=pure_black, font=font_sub)
+    draw.text((text_x, 330), f"MAT: {material}", fill=pure_black, font=font_sub)
+    draw.text((text_x, 450), f"DESIGN: {design_name}", fill=pure_black, font=font_sub)
     
     return background
 
