@@ -70,9 +70,10 @@ if st.button("Generate High-Res Label"):
     # Saving with 600 DPI metadata so printers know it's 1 inch tall
     img.save(buf, format="PNG", dpi=(600, 600))
     
-    st.download_button(
+  st.download_button(
         label="Download 600 DPI Label",
         data=buf.getvalue(),
-        file_name=f"Label_HighRes_{order_id}.png",
+        file_name=f"{order_id}_code.png",  # This creates the "211720_code.png" format
         mime="image/png"
+    )
     )
