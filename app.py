@@ -37,6 +37,13 @@ def create_label(order_num, item_count, material, design_name):
         font_main = ImageFont.load_default(size=120)
         font_sub = ImageFont.load_default(size=80)
 
+    # 5. DRAW TEXT 
+    text_x = 700
+    draw.text((text_x, 60), f"ORDER #: {order_num}", fill=black, font=font_main)
+    draw.text((text_x, 210), f"ITEM: {item_count}", fill=black, font=font_sub)
+    draw.text((text_x, 330), f"MAT: {material}", fill=black, font=font_sub)
+    draw.text((text_x, 450), f"DESIGN: {design_name}", fill=black, font=font_sub)
+
 
     
     return background
