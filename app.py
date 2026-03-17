@@ -5,46 +5,46 @@ import io
 
 def create_label(order_num, item_count, material, design_name):
     # Higher Resolution: 600 DPI
-    # 1 inch = 600px height | 4.5 inches = 2700px width
     scale_factor = 2 
     width, height = 1350 * scale_factor, 300 * scale_factor  
     
-    # 1. QR CODE (Increased scale for resolution)
+    # 1. SET THE COLOR
+    # Converting hex #889a89 to RGB tuple
+    sage_green = (136, 154, 137)
+    
+    # 2. QR CODE 
     qr = qrcode.QRCode(version=1, box_size=20, border=4)
     qr.add_data(order_num)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert('L')
     
-    # Resize QR to fit the new 600px height
+    # We use fill_color to apply your Sage Green
+    qr_img = qr.make_image(fill_color=sage_green, back_color="white").convert('RGB')
+    
     qr_side = 560 
     qr_img = qr_img.resize((qr_side, qr_side), resample=Image.LANCZOS)
     
-    # 2. CANVAS (Using 'L' for high-contrast grayscale)
-    background = Image.new('L', (width, height), color=255)
+    # 3. CANVAS (Switched to 'RGB' to support color)
+    background = Image.new('RGB', (width, height), color=(255, 255, 255))
     background.paste(qr_img, (20, 20))
     draw = ImageDraw.Draw(background)
     
-    # 3. HIGH-RES FONT SIZING
-    # We use even larger font sizes because the canvas is now 600px tall
+    # 4. LOAD FONTS
     try:
         font_path = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
-        font_main = ImageFont.truetype(font_path, 140) # Double size for high res
+        font_main = ImageFont.truetype(font_path, 140)
         font_sub = ImageFont.truetype(font_path, 90)
     except:
-        # If specific font path fails, we use a scaled-up default
         font_main = ImageFont.load_default(size=120)
         font_sub = ImageFont.load_default(size=80)
 
-    # 4. DRAW TEXT
-    # At high resolution, we don't need the 'fake bold' trick anymore; 
-    # the font naturally looks clean and heavy.
+    # 5. DRAW TEXT (Using sage_green instead of black)
     text_x = 700
-    draw.text((text_x, 60), f"ORDER #: {order_num}", fill=0, font=font_main)
-    draw.text((text_x, 210), f"ITEM: {item_count}", fill=0, font=font_sub)
-    draw.text((text_x, 330), f"MAT: {material}", fill=0, font=font_sub)
-    draw.text((text_x, 450), f"DESIGN: {design_name}", fill=0, font=font_sub)
+    draw.text((text_x, 60), f"ORDER #: {order_num}", fill=sage_green, font=font_main)
+    draw.text((text_x, 210), f"ITEM: {item_count}", fill=sage_green, font=font_sub)
+    draw.text((text_x, 330), f"MAT: {material}", fill=sage_green, font=font_sub)
+    draw.text((text_x, 450), f"DESIGN: {design_name}", fill=sage_green, font=font_sub)
     
-    return background.convert('RGB')
+    return background
 
 
 # --- STREAMLIT UI ---
