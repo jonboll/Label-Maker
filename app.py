@@ -55,10 +55,10 @@ def create_label(order_num, item_count, material, design_name):
 
 # --- STREAMLIT UI ---
 # This changes the name in the browser tab
-st.set_page_config(page_title="Custom Label Creator", layout="centered")
+st.set_page_config(page_title="Manual Label Creator", layout="centered")
 
 # This changes the big title at the top of the webpage
-st.title("🏷️ Custom Label Creator") 
+st.title("🏷️ Manual Label Creator") 
 st.write("One inch tall label")
 
 order_id = st.text_input("Order Number", "211720")
